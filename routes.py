@@ -1,6 +1,7 @@
 from flask import * 
+from sqlite3 import connect
 r = Blueprint(__name__, "db", "static", template_folder="templates")
-
+conn = connect("db.sqlite3")
 @r.route("/")
 def index():
     if "username" in session:
@@ -23,6 +24,8 @@ def signup():
             return redirect("/")
         else:
             return render_template("signup.html")
+    else:
+        return jsonify(request.data)
 
 @r.route("/logout", methods=["GET", "POST"])
 def logout():
