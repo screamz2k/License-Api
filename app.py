@@ -1,10 +1,11 @@
 from flask import * 
-from dotenv import load_dotenv
-from os import getenv
+from settings import *
 from routes import r
-load_dotenv()
+from auth import Auth
 app = Flask(__name__, None, "static")
-app.secret_key = getenv("secret_key")
+app.secret_key = secret_key
 app.register_blueprint(r)
+app.register_blueprint(Auth)
+
 if __name__ == "__main__":
     app.run(debug=True)
