@@ -1,6 +1,12 @@
-from flask import * 
+from flask import *
 from sqlite3 import connect
+from settings import *
+
 Auth = Blueprint(__name__, "db", "static", template_folder="templates")
+
+
+
+
 @Auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -8,6 +14,41 @@ def login():
             return redirect("/")
         else:
             return render_template("login.html")
+    elif request.method == "POST":
+        conn = connect("db.sqlite3")
+        curr = conn.cursor()
+        username_email = request.form['username']
+        password = request.form['password']
+        if "@" in username_email:
+            curr.execute(f"SELECT * FROM Users WHERE email='{username_email}'")
+            data = curr.fetchall()
+            if data == []:
+                flash("Email isn't registered.", "danger")
+                curr.close()
+                conn.close()
+                return redirect('/login')
+        else:
+            curr.execute(f"SELECT * FROM Users WHERE username='{username_email}'")
+            data = curr.fetchall()
+            if data == []:
+                flash("User isn't registered.", "danger")
+                curr.close()
+                conn.close()
+                return redirect('/login')
+        if password == fernet.decrypt(data[0][2].encode()).decode():
+            session["username"] = data[0][1]
+            session["password"] = data[0][2]
+            flash("Logged in successfully.", "success")
+            curr.close()
+            conn.close()
+            return redirect("/")
+        else:
+            flash("User/Email and Password dont match or User doens't exist.", "danger")
+            curr.close()
+            conn.close()
+            return redirect("/login")
+
+
 
 @Auth.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -34,12 +75,23 @@ def signup():
             flash("Email is already assigned", "danger")
             error = True
         if password != password_a:
-            flash("Passwords don't match.")
+            flash("Passwords don't match.", "danger")
             error = True
-        if error:    
+        if error:
             return render_template("signup.html")
-        else:
-            return redirect("/")
+        print(f"INSERT INTO Users VALUES('{email}', '{username}', '{fernet.encrypt(password.encode('utf-8')).decode('utf-8')}')")
+        curr.execute(
+            f"INSERT INTO Users VALUES('{email}', '{username}', '{fernet.encrypt(password.encode('utf-8')).decode('utf-8')}')")
+        conn.commit()
+        session["username"] = username
+        session["password"] = password
+        flash("Signed up successfully", "success")
+        curr.close()
+        conn.close()
+        return redirect("/")
+
+
+
 @Auth.route("/logout", methods=["GET", "POST"])
 def logout():
     session.clear()
