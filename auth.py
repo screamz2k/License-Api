@@ -17,8 +17,14 @@ def login():
     elif request.method == "POST":
         conn = connect("db.sqlite3")
         curr = conn.cursor()
-        username_email = request.form['username']
-        password = request.form['password']
+        try:
+            username_email = request.form['username']
+            password = request.form['password']
+        except:
+            flash("An Error occured.", "danger")
+            curr.close()
+            conn.close()
+            return redirect("/login")
         if "@" in username_email:
             curr.execute(f"SELECT * FROM Users WHERE email='{username_email}'")
             data = curr.fetchall()
@@ -60,11 +66,17 @@ def signup():
     else:
         conn = connect("db.sqlite3")
         curr = conn.cursor()
-        form = request.form
-        username = form.get("username")
-        email = form.get("email")
-        password = form.get("password")
-        password_a = form.get("password-a")
+        try:
+            form = request.form
+            username = form.get("username")
+            email = form.get("email")
+            password = form.get("password")
+            password_a = form.get("password-a")
+        except:
+            flash("An Error occured.", "danger")
+            curr.close()
+            conn.close()
+            return redirect("/signup")            
         error = False
         curr.execute(f"SELECT * FROM Users WHERE username='{username}'")
         if curr.fetchall() != []:
@@ -77,6 +89,15 @@ def signup():
         if password != password_a:
             flash("Passwords don't match.", "danger")
             error = True
+        if len(password) < 9:
+            flash("Password is too short", "danger")
+            error = True
+        if len(email) > 10:
+            flash("Email is too short", "danger")
+            error = True     
+        if len(username) < 3:
+            flash("Username is too short", "danger")
+            error = True            
         if error:
             return render_template("signup.html")
         print(f"INSERT INTO Users VALUES('{email}', '{username}', '{fernet.encrypt(password.encode('utf-8')).decode('utf-8')}')")
