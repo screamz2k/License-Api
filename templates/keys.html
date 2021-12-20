@@ -32,6 +32,37 @@
         <h2>Logged in as {{username}}</h2>
         <a href="/logout"><button class="btn btn-primary">Logout</button></a>
         <a href="/keys" ><button class="btn btn-primary">Manage Keys</button></a>
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+                <!-- Your Columns HERE -->
+                <th scope="col">Activated</th>
+                <th scope="col">Key</th>
+                <th scope="col">Mac Adress</th>
+                <th scope="col">Expire Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Your rows inside the table HERE: -->
+            {% for key in keys %}
+                <tr>
+                    {% if key.active == true %}
+                       <td>U+2705</td>
+                    {% else %}
+                       <td>U+274C</td>
+                    {% endif %}
+                    <td>{{ key.name }}</td>
+                    <td>{{ key.address }}</td>
+                    <td>{{ key.expiry }}$</td>
+                    <td>
+                        <button class="btn btn-outline btn-info">More Infos</button>
+                        <button class="btn btn-outline btn-danger">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {% endif %}
+
 </body>
 </html>
