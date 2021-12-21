@@ -47,13 +47,17 @@
             {% for key in keys %}
                 <tr>
                     {% if key.active == true %}
-                       <td>U+2705</td>
+                       <td>✅</td>
                     {% else %}
-                       <td>U+274C</td>
+                       <td>❌</td>
                     {% endif %}
                     <td>{{ key.name }}</td>
-                    <td>{{ key.address }}</td>
-                    <td>{{ key.expiry }}$</td>
+                    {% if key.address == '' %}
+                       <td>None</td>
+                    {% else %}
+                       <td>key.address</td>
+                    {% endif %}
+                    <td>{{ key.expiry }}</td>
                     <td>
                         <button class="btn btn-outline btn-info">More Infos</button>
                         <button class="btn btn-outline btn-danger">Delete</button>

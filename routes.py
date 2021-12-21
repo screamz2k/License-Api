@@ -12,15 +12,18 @@ def keys():
     if "username" in session:
         conn = connect("db.sqlite3")
         curr = conn.cursor()
-        keys = []
+        keyss = []
         curr.execute(f"SELECT * FROM Keys WHERE username='{session['username']}'")
-        for key in curr.fetchall():
-            if key[0] == "0":
-                key[0] = False
+        for keys in curr.fetchall():
+            keys = list(keys)
+            keys.pop(0)
+            print(keys[3])
+            if keys[1] == 0:
+                keys[1] = False
             else:
-                key[0] = True
-            keys += {'id': key[0], 'name': key[1], 'address': key[2], 'expiry': key[3]},
-        return render_template("keys.html", logged_in="1", username=session['username'], keys=keys)
+                keys[1] = True
+            keyss += {'name': keys[0], 'active': keys[1],  'address': keys[2], 'expiry': keys[3]},
+        return render_template("keys.html", logged_in="1", username=session['username'], keys=keyss)
     else:
         flash("You need to be logged in.", "danger") 
         return redirect("/login")
