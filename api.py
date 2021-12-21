@@ -165,7 +165,7 @@ def post_delete_key():
     conn.close() 
 @Api.route("/delete-key", methods=["GET"])
 def get_delete_key():
-    if "username" not in session:
+    if "username" not in session: 
         flash("Not logged in.", "danger")
         return redirect(url_for("routes.keys"))
     if "key" in request.args:
