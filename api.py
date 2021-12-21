@@ -26,15 +26,15 @@ def post_create_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
     if "expiry" in request.data:
-        expiry = request.data["expiry"]
+        expiry = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Expiry Date is missing."})
     if "username" in request.data:
-        username = request.data["username"]
+        username = request.data.get("username")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data["password"]
+        password = request.data.get("password")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if not Functions.check_date_format(expiry):
@@ -57,7 +57,7 @@ def get_create_key():
         flash("Not logged in.", "danger")
         return redirect(url_for("routes.keys"))
     if "expiry" in request.args:
-        expiry = request.args.get["expiry"]
+        expiry = request.args.get("expiry")
     else:
         flash("Input Expiry Date of the Keys.", "danger")
         return redirect(url_for("routes.keys"))
@@ -77,19 +77,19 @@ def post_create_keys():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
     if "expiry" in request.data:
-        expiry = request.data["expiry"]
+        expiry = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Expiry Date is missing."})
     if "amount" in request.data:
-        amount = request.data["amount"]
+        amount = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Amount is missing."})
     if "username" in request.data:
-        username = request.data["username"]
+        username = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data["password"]
+        password = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Password is missing."})
     if not Functions.check_date_format(expiry):
@@ -115,12 +115,12 @@ def get_create_keys():
         flash("Not logged in.", "danger")
         return redirect(url_for("routes.keys"))
     if "amount" in request.args:
-        amount = request.args.get["amount"]
+        amount = request.args.get("amount")
     else:
         flash("Amount of keys is missing.", "danger")
         return redirect(url_for("routes.keys"))
     if "expiry" in request.args:
-        expiry = request.args.get["expiry"]
+        expiry = request.args.get("expiry")
     else:
         flash("Expiry Date of the Keys is missing.", "danger")
         return redirect(url_for("routes.keys"))
@@ -145,15 +145,15 @@ def post_delete_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
     if "username" in request.data:
-        username = request.data["username"]
+        username = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data["password"]
+        password = request.data.get("expiry")
     else:
         return jsonify({"code": 403, "message": "Password is missing."})
     if "key" in request.data:
-        key = request.data.get["expiry"]
+        key = request.data.get("expiry")
     else:
         return jsonify 
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
@@ -169,7 +169,7 @@ def get_delete_key():
         flash("Not logged in.", "danger")
         return redirect(url_for("routes.keys"))
     if "key" in request.args:
-        key = request.args.get["expiry"]
+        key = request.args.get("expiry")
     else:
         flash("Key is missing", "danger")
         return redirect(url_for("routes.keys"))
@@ -185,10 +185,16 @@ def manage_key():
 @Api.route("/view-key")
 def view_key():
     return "lol"
-@Api.route("/activate-key")
-def activate_key():
+@Api.route("/activate-key", methods=["POST"])
+def post_activate_key():
     return "lol"
-@Api.route("/deactivate-key")
-def deactivate_key():
+@Api.route("/activate-key", methods=["GET"])
+def get_activate_key():
+    return "lol"
+@Api.route("/deactivate-key", methods=["POST"])
+def post_deactivate_key():
+    return "lol"
+@Api.route("/deactivate-key", methods=["GET"])
+def get_deactivate_key():
     return "lol"
 
