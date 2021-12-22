@@ -1,6 +1,7 @@
 from flask import * 
 from sqlite3 import connect
 Routes = Blueprint(__name__, "db", "static", template_folder="templates")
+
 @Routes.route("/")
 def index():
     if "username" in session:
@@ -12,18 +13,22 @@ def keys():
     if "username" in session:
         conn = connect("db.sqlite3")
         curr = conn.cursor()
-        keyss = []
-        curr.execute(f"SELECT * FROM Keys WHERE username='{session['username']}'")
-        for keys in curr.fetchall():
-            keys = list(keys)
-            keys.pop(0)
-            print(keys[3])
-            if keys[1] == 0:
-                keys[1] = False
+        keys = []
+        curr.execute(f"SELECT * FROM Keys WHERE username='{session['username']}' ORDER BY Expiry DESC")
+        for key in curr.fetchall():
+            key = list(key)
+            key.pop(0)
+            print(key[3])
+            if key[1] == 0:
+                key[1] = False
             else:
-                keys[1] = True
-            keyss += {'name': keys[0], 'active': keys[1],  'address': keys[2], 'expiry': keys[3]},
-        return render_template("keys.html", logged_in="1", username=session['username'], keys=keyss)
+                key[1] = True
+            if key[3] > 1000:
+                key[3] = "Lifetime"
+            else:
+                key[3] = str(key[3]) + " Days"
+            keys += {'name': key[0], 'active': key[1],  'address': key[2], 'days': key[3]},
+        return render_template("keys.html", logged_in="1", username=session['username'], keys=keys)
     else:
         flash("You need to be logged in.", "danger") 
         return redirect("/login")
