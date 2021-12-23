@@ -189,9 +189,13 @@ def post_activate_key():
         key = request.data.get("key")
     else:
         return jsonify({"code": 403, "message": "Key is missing"})
+    if "mac" in request.data:
+        mac = "'" + request.data.get("mac") + "'"
+    else:
+        mac = ''
     conn = connect("db.sqlite3")
     curr = conn.cursor()
-    curr.execute(f"UPDATE Keys SET activated=1 WHERE Key='{key}'")
+    curr.execute(f"UPDATE Keys SET activated=1 AND Adress={mac} AND WHERE Key='{key}'")
     conn.commit()
     curr.close()
     conn.close()
@@ -201,7 +205,8 @@ def get_activate_key():
     if "key" in request.args:
         key = request.args.get("key")
     else:
-        return jsonify({"code": 403, "message": "Key is missing"})
+        flash("Key is missing.", "danger")
+        return redirect(url_for("routes.keys"))
     conn = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"UPDATE Keys SET activated=1 WHERE Key='{key}'")
@@ -212,8 +217,68 @@ def get_activate_key():
     return redirect(url_for("routes.keys"))
 @Api.route("/deactivate-key", methods=["POST"])
 def post_deactivate_key():
-    return "lol"
+    if "username" in request.data:
+        username = request.data.get("expiry")
+    else:
+        return jsonify({"code": 403, "message": "Username is missing."})
+    if "password" in request.data:
+        password = request.data.get("expiry")
+    else:
+        return jsonify({"code": 403, "message": "Password is missing."})
+    if "key" in request.data:
+        key = request.data.get("key")
+    else:
+        return jsonify({"code": 403, "message": "Key is missing"})
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
+    curr.execute(f"UPDATE Keys SET activated=0 WHERE Key='{key}' AND username='{username}'")
+    conn.commit()
+    curr.close()
+    conn.close()
+    return jsonify({"code": 200, "message": "Successfully deactivated Key"})
 @Api.route("/deactivate-key", methods=["GET"])
 def get_deactivate_key():
-    return "lol"
+    if "username" not in session:
+        flash("Not logged in.", "danger")
+        return redirect(url_for("auth.login"))
+    if "key" in request.args:
+        key = request.args.get("key")
+    else:
+        return jsonify({"code": 403, "message": "Key is missing"})
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
+    curr.execute(f"UPDATE Keys SET activated=0 WHERE Key='{key}' AND username='{session['username']}'")
+    conn.commit()
+    curr.close()
+    conn.close()
+    flash(f"Successfully deactivated Key: {key}", "success")
+    return redirect(url_for("routes.keys"))   
+@Api.route("/check-key", methods=["GET"])
+def check_key():
+    if "key" in request.args:
+        key = request.args.get("key")
+    else:
+        return jsonify({"code": 403, "message": "Key is missing"})
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
+    curr.execute(f"SELECT * FROM Keys WHERE key='{key}'")
+    conn.commit()
+    query = curr.fetchall()
+    curr.close()
+    conn.close()
+    if query == []:
+        return jsonify({"code": 406, "message": "Key wasn't found."})
+    else:
+        query = query[0]
+        if query[2] == 0:
+            active = False
+        else:
+            active = True
+        data = {
+            "Key": query[1],
+            "Activated": active,
+            "Address": query[3],
+            "Days": query[4]
+        }
+        return jsonify(data)
 
