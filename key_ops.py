@@ -8,14 +8,14 @@ def day_change():
     while True:
         conn = connect("db.sqlite3")
         curr = conn.cursor()
-        curr.execute("SELECT Key, Expiry FROM Keys")
+        curr.execute("SELECT Key, Expiry, Activated FROM Keys")
         with open("date.txt") as f:
             curr_date = f.read()
             curr_date = datetime.datetime.strptime(curr_date, r"%d/%m/%y")
         days_between = datetime.datetime.today() - curr_date
         if days_between != 0:
-            for key, key_days in curr.fetchall():
-                if key_days > 600:
+            for key, key_days, active in curr.fetchall():
+                if key_days > 600 or active == 0:
                     continue
                 key_days -= days_between.days
                 if key_days < 0:
