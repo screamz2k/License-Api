@@ -195,7 +195,7 @@ def post_activate_key():
         mac = ''
     conn = connect("db.sqlite3")
     curr = conn.cursor()
-    curr.execute(f"UPDATE Keys SET activated=1 AND Adress={mac} AND WHERE Key='{key}'")
+    curr.execute(f"UPDATE Keys SET activated=1 AND Address={mac} AND WHERE Key='{key}'")
     conn.commit()
     curr.close()
     conn.close()
