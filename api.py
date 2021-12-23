@@ -76,11 +76,11 @@ def post_create_keys():
     else:
         return jsonify({"code": 403, "message": "Amount is missing."})
     if "username" in request.data:
-        username = request.data.get("expiry")
+        username = request.data.get("username")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data.get("expiry")
+        password = request.data.get("password")
     else:
         return jsonify({"code": 403, "message": "Password is missing."})
     
@@ -144,11 +144,11 @@ def post_delete_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
     if "username" in request.data:
-        username = request.data.get("expiry")
+        username = request.data.get("username")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data.get("expiry")
+        password = request.data.get("password")
     else:
         return jsonify({"code": 403, "message": "Password is missing."})
     if "key" in request.data:
@@ -180,9 +180,6 @@ def get_delete_key():
     conn.close()   
     flash(f"Successfully deleted Key: {key}", "success") 
     return redirect(url_for("routes.keys"))
-@Api.route("/manage-key")
-def manage_key():
-    return "lol"
 @Api.route("/activate-key", methods=["POST"])
 def post_activate_key():
     if "key" in request.data:
@@ -218,11 +215,11 @@ def get_activate_key():
 @Api.route("/deactivate-key", methods=["POST"])
 def post_deactivate_key():
     if "username" in request.data:
-        username = request.data.get("expiry")
+        username = request.data.get("username")
     else:
         return jsonify({"code": 403, "message": "Username is missing."})
     if "password" in request.data:
-        password = request.data.get("expiry")
+        password = request.data.get("password")
     else:
         return jsonify({"code": 403, "message": "Password is missing."})
     if "key" in request.data:
@@ -231,6 +228,9 @@ def post_deactivate_key():
         return jsonify({"code": 403, "message": "Key is missing"})
     conn = connect("db.sqlite3")
     curr = conn.cursor()
+    curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
+    if fernet.decrypt(curr.fetchall()[0][0].encode()).decode() != password:
+        return jsonify({"code": 403, "message": "Username and Password aren't matching."})
     curr.execute(f"UPDATE Keys SET activated=0 WHERE Key='{key}' AND username='{username}'")
     conn.commit()
     curr.close()

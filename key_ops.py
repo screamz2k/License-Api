@@ -3,7 +3,6 @@ from time import sleep
 from sqlite3 import connect
 
 
-
 def day_change():
     while True:
         conn = connect("db.sqlite3")
@@ -20,10 +19,10 @@ def day_change():
                 key_days -= days_between.days
                 if key_days < 0:
                     key_days = 0
-                curr.execute(f"UPDATE Keys SET Expiry={key_days} WHERE Key='{key}'")
+                curr.execute(
+                    f"UPDATE Keys SET Expiry={key_days} WHERE Key='{key}'")
             conn.commit()
             conn.close()
             with open("date.txt", "w") as f:
                 f.write(datetime.datetime.today().strftime(r"%d/%m/%y"))
         sleep(10*60*60)
-        
