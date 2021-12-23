@@ -12,6 +12,7 @@ Licensing-API is an API to create, manage and check keys for your projects.
 - Anti-Bruteforce-Defence
 - Sql-Injection (not-tested)
 - Api-Limit
+- Any other Vulnerability i dont know
 # Explanation
 I'm just a junior backend dev, and wasn't able to cover these protections,
 because of missing Knowledge and this Project was made in 5 days, and I want to go on.
