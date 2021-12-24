@@ -92,7 +92,7 @@ def signup():
         if len(password) < 9:
             flash("Password is too short", "danger")
             error = True
-        if len(email) > 10:
+        if len(email) < 10:
             flash("Email is too short", "danger")
             error = True     
         if len(username) < 3:

@@ -9,34 +9,37 @@ Api = Blueprint(__name__, "db", "static", template_folder="templates")
 def post_create_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
-    if "expiry" in request.data:
-        expiry = request.data.get("expiry")
+    if "expiry" in request.form:
+        expiry = request.form.get("expiry")
     else:
-        return jsonify({"code": 403, "message": "Expiry Days are missing."})
+        return jsonify({"code": 403, "message": "Expiry Days are missing."}), 403
     try:
         expiry = int(expiry)
     except:
-        return jsonify({"code": 403, "message": "Expiry days needs to be an Integer."})
-    if "username" in request.data:
-        username = request.data.get("username")
+        return jsonify({"code": 403, "message": "Expiry days needs to be an Integer."}), 403
+    if "username" in request.form:
+        username = request.form.get("username")
     else:
-        return jsonify({"code": 403, "message": "Username is missing."})
-    if "password" in request.data:
-        password = request.data.get("password")
+        return jsonify({"code": 403, "message": "Username is missing."}), 403
+    if "password" in request.form:
+        password = request.form.get("password")
     else:
-        return jsonify({"code": 403, "message": "Username is missing."})
+        return jsonify({"code": 403, "message": "Password is missing."}), 403
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
-    if fernet.decrypt(curr.fetchall()[0][0].encode()).decode() != password:
-        return jsonify({"code": 403, "message": "Username and Password aren't matching."})
+    data = curr.fetchall()
+    if data == []:
+        return jsonify({"code": 403, "message": "User doesn't exist."}), 403
+    if fernet.decrypt(data[0][0].encode()).decode() != password:
+        return jsonify({"code": 403, "message": "Username and Password aren't matching."}), 201
     part1 = "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
     part2 = "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
     part3 = "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
     key = part1 + "-" + part2 + "-" + part3
-    curr.execute(f"INSERT INTO Keys VALUES('{session['username']}', '{key}', 0, '', {expiry})")
+    curr.execute(f"INSERT INTO Keys VALUES('{username}', '{key}', 0, '', {expiry})")
     conn.commit()
     curr.close()
     conn.close()
-    return jsonify({"code": 200, "message": "Successfully added Key.", "key": key})
+    return jsonify({"code": 200, "message": "Successfully added Key.", "key": key}), 200
 @Api.route("/create-key", methods=["GET"])
 def get_create_key():
     if "username" not in session:
@@ -63,30 +66,32 @@ def get_create_key():
 def post_create_keys():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
-    if "expiry" in request.data:
-        expiry = request.data.get("expiry")
+    if "expiry" in request.form:
+        expiry = request.form.get("expiry")
     else:
-        return jsonify({"code": 403, "message": "Expiry Days are missing."})
+        return jsonify({"code": 403, "message": "Expiry Days are missing."}), 403
     try:
         expiry = int(expiry)
     except:
-        return jsonify({"code": 403, "message": "Expiry days needs to be an Integer."})
-    if "amount" in request.data:
-        amount = request.data.get("amount")
+        return jsonify({"code": 403, "message": "Expiry days needs to be an Integer."}), 403
+    if "amount" in request.form:
+        amount = request.form.get("amount")
     else:
-        return jsonify({"code": 403, "message": "Amount is missing."})
-    if "username" in request.data:
-        username = request.data.get("username")
+        return jsonify({"code": 403, "message": "Amount is missing."}), 403
+    if "username" in request.form:
+        username = request.form.get("username")
     else:
-        return jsonify({"code": 403, "message": "Username is missing."})
-    if "password" in request.data:
-        password = request.data.get("password")
+        return jsonify({"code": 403, "message": "Username is missing."}), 403
+    if "password" in request.form:
+        password = request.form.get("password")
     else:
-        return jsonify({"code": 403, "message": "Password is missing."})
-    
+        return jsonify({"code": 403, "message": "Password is missing."}), 403
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
-    if fernet.decrypt(curr.fetchall()[0][0].encode()).decode() != password:
-        return jsonify({"code": 403, "message": "Username and Password aren't matching."})
+    data = curr.fetchall()
+    if data == []:
+        return jsonify({"code": 403, "message": "User doesn't exist."}), 403
+    if fernet.decrypt(data[0][0].encode()).decode() != password:
+        return jsonify({"code": 403, "message": "Username and Password aren't matching."}), 403
     keys = []
     for i in range(amount):
             part1 = "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
@@ -94,7 +99,7 @@ def post_create_keys():
             part3 = "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
             keys.append(part1 + "-" + part2 + "-" + part3)
     for key in keys:
-        curr.execute(f"INSERT INTO Keys VALUES('{session['username']}', '{key}', 0, '', {expiry})")
+        curr.execute(f"INSERT INTO Keys VALUES('{username}', '{key}', 0, '', {expiry})")
     conn.commit()
     curr.close()
     conn.close()
@@ -143,25 +148,29 @@ def get_create_keys():
 def post_delete_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
-    if "username" in request.data:
-        username = request.data.get("username")
+    if "username" in request.form:
+        username = request.form.get("username")
     else:
-        return jsonify({"code": 403, "message": "Username is missing."})
-    if "password" in request.data:
-        password = request.data.get("password")
+        return jsonify({"code": 403, "message": "Username is missing."}), 403
+    if "password" in request.form:
+        password = request.form.get("password")
     else:
-        return jsonify({"code": 403, "message": "Password is missing."})
-    if "key" in request.data:
-        key = request.data.get("key")
+        return jsonify({"code": 403, "message": "Password is missing."}), 403
+    if "key" in request.form:
+        key = request.form.get("key")
     else:
         return jsonify 
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
-    if fernet.decrypt(curr.fetchall()[0][0].encode()).decode() != password:
-        return jsonify({"code": 403, "message": "Username and Password aren't matching"})
+    data = curr.fetchall()
+    if data == []:
+        return jsonify({"code": 403, "message": "User doesn't exist."}), 403
+    if fernet.decrypt(data[0][0].encode()).decode() != password:
+        return jsonify({"code": 403, "message": "Username and Password aren't matching"}), 403
     curr.execute(f"DELETE FROM Keys WHERE key='{key}'")
     conn.commit()
     curr.close()
-    conn.close() 
+    conn.close()
+    return jsonify({"code": 200, "message": f"Successfully deleted Key: {key}"}), 200
 @Api.route("/delete-key", methods=["GET"])
 def get_delete_key():
     if "username" not in session: 
@@ -182,22 +191,22 @@ def get_delete_key():
     return redirect(url_for("routes.keys"))
 @Api.route("/activate-key", methods=["POST"])
 def post_activate_key():
-    if "key" in request.data:
-        key = request.data.get("key")
+    if "key" in request.form:
+        key = request.form.get("key")
     else:
-        return jsonify({"code": 403, "message": "Key is missing"})
-    if "mac" in request.data:
-        mac = "'" + request.data.get("mac") + "'"
+        return jsonify({"code": 403, "message": "Key is missing"}), 403
+    if "mac" in request.form:
+        mac = "'" + request.form.get("mac") + "'"
     else:
         mac = ''
     conn = connect("db.sqlite3")
     curr = conn.cursor()
-    curr.execute(f"UPDATE Keys SET activated=1 AND Address={mac} AND WHERE Key='{key}'")
+    curr.execute(f"UPDATE Keys SET activated=1 AND Address='{mac}' WHERE Key='{key}'")
     conn.commit()
     curr.close()
     conn.close()
-    return jsonify({"code": 200, "message": "Successfully activated Key"})
-@Api.route("/activate-key", methods=["GET"])
+    return jsonify({"code": 200, "message": "Successfully activated Key"}), 200
+@Api.route("/activate-key", methods=["POST"])
 def get_activate_key():
     if "key" in request.args:
         key = request.args.get("key")
@@ -214,28 +223,31 @@ def get_activate_key():
     return redirect(url_for("routes.keys"))
 @Api.route("/deactivate-key", methods=["POST"])
 def post_deactivate_key():
-    if "username" in request.data:
-        username = request.data.get("username")
+    if "username" in request.form:
+        username = request.form.get("username")
     else:
-        return jsonify({"code": 403, "message": "Username is missing."})
-    if "password" in request.data:
-        password = request.data.get("password")
+        return jsonify({"code": 403, "message": "Username is missing."}), 403
+    if "password" in request.form:
+        password = request.form.get("password")
     else:
-        return jsonify({"code": 403, "message": "Password is missing."})
-    if "key" in request.data:
-        key = request.data.get("key")
+        return jsonify({"code": 403, "message": "Password is missing."}), 403
+    if "key" in request.form:
+        key = request.form.get("key")
     else:
-        return jsonify({"code": 403, "message": "Key is missing"})
+        return jsonify({"code": 403, "message": "Key is missing"}), 403
     conn = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
-    if fernet.decrypt(curr.fetchall()[0][0].encode()).decode() != password:
-        return jsonify({"code": 403, "message": "Username and Password aren't matching."})
+    data = curr.fetchall()
+    if data == []:
+        return jsonify({"code": 403, "message": "User doesn't exist."}), 403
+    if fernet.decrypt(data[0][0].encode()).decode() != password:
+        return jsonify({"code": 403, "message": "Username and Password aren't matching."}), 403
     curr.execute(f"UPDATE Keys SET activated=0 WHERE Key='{key}' AND username='{username}'")
     conn.commit()
     curr.close()
     conn.close()
-    return jsonify({"code": 200, "message": "Successfully deactivated Key"})
+    return jsonify({"code": 200, "message": "Successfully deactivated Key"}), 200
 @Api.route("/deactivate-key", methods=["GET"])
 def get_deactivate_key():
     if "username" not in session:
@@ -262,23 +274,22 @@ def check_key():
     conn = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"SELECT * FROM Keys WHERE key='{key}'")
-    conn.commit()
     query = curr.fetchall()
     curr.close()
     conn.close()
     if query == []:
-        return jsonify({"code": 406, "message": "Key wasn't found."})
+        return jsonify({"code": 406, "message": "Key wasn't found."}), 406
     else:
         query = query[0]
         if query[2] == 0:
             active = False
         else:
             active = True
-        data = {
+        form = {
             "Key": query[1],
             "Activated": active,
             "Address": query[3],
             "Days": query[4]
         }
-        return jsonify(data)
+        return jsonify(form), 200
 
