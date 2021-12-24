@@ -95,3 +95,5 @@ Set the key you want to deactivate.<br>
 ### [GET] ``/api/check-key``
 ``?key=your-key``<br>
 Set the key you to check.<br>
+# Thanks
+- Dreamy#1204 for reporting bugs 
