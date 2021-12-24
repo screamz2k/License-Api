@@ -5,6 +5,14 @@ import string
 from sqlite3 import connect
 Api = Blueprint(__name__, "db", "static", template_folder="templates")
 
+def check_key_ex(key):
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
+    curr.execute(f"SELECT * FROM Keys WHERE Key='{key}'")
+    if curr.fetchall() != []:
+        return True
+    else:
+        return False
 @Api.route("/create-key", methods=["POST"])
 def post_create_key():
     conn  = connect("db.sqlite3")
@@ -160,6 +168,8 @@ def post_delete_key():
         key = request.form.get("key")
     else:
         return jsonify 
+    if not check_key_ex(key):
+        return jsonify({"code": 406, "message": "Key doesnt exist."}), 406
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
     data = curr.fetchall()
     if data == []:
@@ -181,6 +191,9 @@ def get_delete_key():
     else:
         flash("Key is missing", "danger")
         return redirect(url_for("routes.keys"))
+    if not check_key_ex(key):
+        flash("Key doesnt exist.", "danger")
+        return redirect(url_for("routes.keys"))
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"DELETE FROM Keys WHERE key='{key}'")
@@ -191,17 +204,19 @@ def get_delete_key():
     return redirect(url_for("routes.keys"))
 @Api.route("/activate-key", methods=["POST"])
 def post_activate_key():
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
     if "key" in request.form:
         key = request.form.get("key")
     else:
         return jsonify({"code": 403, "message": "Key is missing"}), 403
+    if not check_key_ex(key):
+        return jsonify({"code": 406, "message": "Key doesnt exist."}), 406
     if "mac" in request.form:
         mac = request.form.get("mac")
+        curr.execute(f"UPDATE Keys SET activated=1, Address='{mac}' WHERE Key='{key}'")
     else:
-        mac = ''
-    conn = connect("db.sqlite3")
-    curr = conn.cursor()
-    curr.execute(f"UPDATE Keys SET activated=1 AND Address='{mac}' WHERE Key='{key}'")
+        curr.execute(f"UPDATE Keys SET activated=1 WHERE Key='{key}'")
     conn.commit()
     curr.close()
     conn.close()
@@ -212,6 +227,9 @@ def get_activate_key():
         key = request.args.get("key")
     else:
         flash("Key is missing.", "danger")
+        return redirect(url_for("routes.keys"))
+    if not check_key_ex(key):
+        flash("Key doesnt exist.", "danger")
         return redirect(url_for("routes.keys"))
     conn = connect("db.sqlite3")
     curr = conn.cursor()
@@ -235,6 +253,8 @@ def post_deactivate_key():
         key = request.form.get("key")
     else:
         return jsonify({"code": 403, "message": "Key is missing"}), 403
+    if not check_key_ex(key):
+        return jsonify({"code": 406, "message": "Key doesnt exist."}), 406
     conn = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"SELECT password FROM Users WHERE username='{username}'")
@@ -257,6 +277,9 @@ def get_deactivate_key():
         key = request.args.get("key")
     else:
         return jsonify({"code": 403, "message": "Key is missing"})
+    if not check_key_ex(key):
+        flash("Key doesnt exist.", "danger")
+        return redirect(url_for("routes.keys"))
     conn = connect("db.sqlite3")
     curr = conn.cursor()
     curr.execute(f"UPDATE Keys SET activated=0 WHERE Key='{key}' AND username='{session['username']}'")
