@@ -22,6 +22,8 @@ because of missing Knowledge and this Project was made in 5 days, and I want to 
     - ``git clone https://github.com/screamz2k/License-API``
 3. Run setup
     - ``python3 setup.py``
+4. Run app
+    - ``python3 app.py``
 
 # Docs
 ``* Login required.``
