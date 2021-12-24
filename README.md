@@ -1,5 +1,7 @@
 # License-API
-Licensing-API is an API to create, manage and check keys for your projects.
+Licensing-API is an API to create, manage and check keys for your projects.<br><br>
+## Preview
+![grafik](https://user-images.githubusercontent.com/78593516/147348162-2b39523b-814e-4aff-bf55-73057a7a935b.png)
 
 ## Features
 - Web Interface
