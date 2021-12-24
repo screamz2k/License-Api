@@ -196,7 +196,7 @@ def post_activate_key():
     else:
         return jsonify({"code": 403, "message": "Key is missing"}), 403
     if "mac" in request.form:
-        mac = "'" + request.form.get("mac") + "'"
+        mac = request.form.get("mac")
     else:
         mac = ''
     conn = connect("db.sqlite3")
