@@ -206,7 +206,7 @@ def post_activate_key():
     curr.close()
     conn.close()
     return jsonify({"code": 200, "message": "Successfully activated Key"}), 200
-@Api.route("/activate-key", methods=["POST"])
+@Api.route("/activate-key", methods=["GET"])
 def get_activate_key():
     if "key" in request.args:
         key = request.args.get("key")
