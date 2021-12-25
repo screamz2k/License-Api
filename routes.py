@@ -1,14 +1,17 @@
 from flask import * 
 from sqlite3 import connect
+from auth import check_user_agent
 Routes = Blueprint(__name__, "db", "static", template_folder="templates")
 
 @Routes.route("/")
+@check_user_agent
 def index():
     if "username" in session:
         return render_template("index.html", logged_in="1", username=session['username'])
     else: 
         return render_template("index.html", logged_in="0") 
 @Routes.route("/keys")
+@check_user_agent
 def keys():
     if "username" in session:
         conn = connect("db.sqlite3")

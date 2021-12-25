@@ -1,5 +1,6 @@
 from flask import * 
 from settings import *
+from auth import check_user_agent
 import random
 import string
 from sqlite3 import connect
@@ -14,6 +15,7 @@ def check_key_ex(key):
     else:
         return False
 @Api.route("/create-key", methods=["POST"])
+@check_user_agent
 def post_create_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
@@ -49,7 +51,9 @@ def post_create_key():
     conn.close()
     return jsonify({"code": 200, "message": "Successfully added Key.", "key": key}), 200
 @Api.route("/create-key", methods=["GET"])
+@check_user_agent
 def get_create_key():
+    
     if "username" not in session:
         flash("Not logged in.", "danger")
         return redirect(url_for("auth.login"))
@@ -71,6 +75,7 @@ def get_create_key():
     flash(f"Successfully created Key: {key}", "success")
     return redirect(url_for("routes.keys"))
 @Api.route("/create-keys", methods=["POST"])
+@check_user_agent
 def post_create_keys():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
@@ -113,6 +118,7 @@ def post_create_keys():
     conn.close()
     return jsonify({"code": 200, "message": "Successfully added Keys.", "keys": keys})
 @Api.route("/create-keys", methods=["GET"])
+@check_user_agent
 def get_create_keys():
     if "username" not in session:
         flash("Not logged in.", "danger")
@@ -153,6 +159,7 @@ def get_create_keys():
     flash("Successfully created Keys.", "success")
     return redirect(url_for("routes.keys"))
 @Api.route("/delete-key", methods=["POST"])
+@check_user_agent
 def post_delete_key():
     conn  = connect("db.sqlite3")
     curr = conn.cursor()
@@ -182,6 +189,7 @@ def post_delete_key():
     conn.close()
     return jsonify({"code": 200, "message": f"Successfully deleted Key: {key}"}), 200
 @Api.route("/delete-key", methods=["GET"])
+@check_user_agent
 def get_delete_key():
     if "username" not in session: 
         flash("Not logged in.", "danger")
@@ -203,6 +211,7 @@ def get_delete_key():
     flash(f"Successfully deleted Key: {key}", "success") 
     return redirect(url_for("routes.keys"))
 @Api.route("/activate-key", methods=["POST"])
+@check_user_agent
 def post_activate_key():
     conn = connect("db.sqlite3")
     curr = conn.cursor()
@@ -222,6 +231,7 @@ def post_activate_key():
     conn.close()
     return jsonify({"code": 200, "message": "Successfully activated Key"}), 200
 @Api.route("/activate-key", methods=["GET"])
+@check_user_agent
 def get_activate_key():
     if "key" in request.args:
         key = request.args.get("key")
@@ -240,6 +250,7 @@ def get_activate_key():
     flash(f"Successfully activated Key: {key}", "success")
     return redirect(url_for("routes.keys"))
 @Api.route("/deactivate-key", methods=["POST"])
+@check_user_agent
 def post_deactivate_key():
     if "username" in request.form:
         username = request.form.get("username")
@@ -269,6 +280,7 @@ def post_deactivate_key():
     conn.close()
     return jsonify({"code": 200, "message": "Successfully deactivated Key"}), 200
 @Api.route("/deactivate-key", methods=["GET"])
+@check_user_agent
 def get_deactivate_key():
     if "username" not in session:
         flash("Not logged in.", "danger")
@@ -289,6 +301,7 @@ def get_deactivate_key():
     flash(f"Successfully deactivated Key: {key}", "success")
     return redirect(url_for("routes.keys"))   
 @Api.route("/check-key", methods=["GET"])
+@check_user_agent
 def check_key():
     if "key" in request.args:
         key = request.args.get("key")
