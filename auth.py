@@ -1,13 +1,22 @@
 from flask import *
 from sqlite3 import connect
 from settings import *
-
+from functools import wraps
 Auth = Blueprint(__name__, "db", "static", template_folder="templates")
 
 
+def check_user_agent(check):
+    @wraps(check)
+    def wrap(*args, **kwargs):
+        if str(request.user_agent) != user_agent and agent_needed:
+            return jsonify({"code": "406", "message": "User Agent isnt the right."}), 406
+        else:
+            return check(*args, **kwargs)
+    return wrap
 
 
 @Auth.route("/login", methods=["GET", "POST"])
+@check_user_agent
 def login():
     if request.method == "GET":
         if "username" in session:
@@ -57,6 +66,7 @@ def login():
 
 
 @Auth.route("/signup", methods=["GET", "POST"])
+@check_user_agent
 def signup():
     if request.method == "GET":
         if "username" in session:
@@ -114,6 +124,7 @@ def signup():
 
 
 @Auth.route("/logout", methods=["GET", "POST"])
+@check_user_agent
 def logout():
     session.clear()
     return redirect("/")
