@@ -14,7 +14,7 @@ if auto_update:
     current_ver = 1
     update_ver = res.url.split('/')[7]
     if not int(update_ver.split(".")[1]) > current_ver:
-        exit()
+        pass
     else:
         file = r.get(f"https://github.com/screamz2k/License-API/archive/refs/tags/{update_ver}.zip")
         with open("update.zip", "wb") as f:
