@@ -221,6 +221,9 @@ def post_activate_key():
         return jsonify({"code": 403, "message": "Key is missing"}), 403
     if not check_key_ex(key):
         return jsonify({"code": 406, "message": "Key doesnt exist."}), 406
+    curr.execute(f"SELECT activated FROM Keys WHERE key='{key}'")
+    if curr.fetchall()[0][0] == 1:
+        return jsonify({"code": 403, "message": "Key is already activated."}), 403     
     if "mac" in request.form:
         mac = request.form.get("mac")
         curr.execute(f"UPDATE Keys SET activated=1, Address='{mac}' WHERE Key='{key}'")
@@ -233,6 +236,8 @@ def post_activate_key():
 @Api.route("/activate-key", methods=["GET"])
 @check_user_agent
 def get_activate_key():
+    conn = connect("db.sqlite3")
+    curr = conn.cursor()
     if "key" in request.args:
         key = request.args.get("key")
     else:
@@ -241,8 +246,10 @@ def get_activate_key():
     if not check_key_ex(key):
         flash("Key doesnt exist.", "danger")
         return redirect(url_for("routes.keys"))
-    conn = connect("db.sqlite3")
-    curr = conn.cursor()
+    curr.execute(f"SELECT activated FROM Keys WHERE key='{key}'")
+    if curr.fetchall()[0][0] == 1:
+        flash("Key is already activated.", "danger")
+        return redirect(url_for("routes.keys"))
     curr.execute(f"UPDATE Keys SET activated=1 WHERE Key='{key}'")
     conn.commit()
     curr.close()
