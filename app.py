@@ -11,7 +11,7 @@ import shutil
 from zipfile import ZipFile
 if auto_update:
     res = r.get("https://github.com/screamz2k/License-API/releases/latest", allow_redirects=True)
-    current_ver = 0
+    current_ver = 1
     update_ver = res.url.split('/')[7]
     if not int(update_ver.split(".")[1]) > current_ver:
         exit()
