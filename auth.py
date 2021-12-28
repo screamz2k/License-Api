@@ -2,8 +2,9 @@ from flask import *
 from sqlite3 import connect
 from settings import *
 from functools import wraps
+from datetime import *
 Auth = Blueprint(__name__, "db", "static", template_folder="templates")
-
+login_tries = {}
 
 def check_user_agent(check):
     @wraps(check)
@@ -14,10 +15,10 @@ def check_user_agent(check):
             return check(*args, **kwargs)
     return wrap
 
-
 @Auth.route("/login", methods=["GET", "POST"])
 @check_user_agent
 def login():
+    global login_tries
     if request.method == "GET":
         if "username" in session:
             return redirect("/")
@@ -34,6 +35,14 @@ def login():
             curr.close()
             conn.close()
             return redirect("/login")
+        if username_email in login_tries:
+            sec_between = datetime.now() - login_tries[username_email]
+            sec_between : timedelta
+            if sec_between.seconds < 4:
+                flash("You are going to fast.", "danger")
+                curr.close()
+                conn.close()
+                return render_template('login.html', email=username_email, password=password), 403          
         if "@" in username_email:
             curr.execute(f"SELECT * FROM Users WHERE email='{username_email}'")
             data = curr.fetchall()
@@ -41,7 +50,7 @@ def login():
                 flash("Email isn't registered.", "danger")
                 curr.close()
                 conn.close()
-                return redirect('/login')
+                return render_template('login.html', email=username_email, password=password), 403   
         else:
             curr.execute(f"SELECT * FROM Users WHERE username='{username_email}'")
             data = curr.fetchall()
@@ -49,7 +58,8 @@ def login():
                 flash("User isn't registered.", "danger")
                 curr.close()
                 conn.close()
-                return redirect('/login')
+                return render_template('login.html', email=username_email, password=password), 403   
+        login_tries[username_email] = datetime.now()
         if password == fernet.decrypt(data[0][2].encode()).decode():
             session["username"] = data[0][1]
             session["password"] = data[0][2]
@@ -61,7 +71,7 @@ def login():
             flash("User/Email and Password dont match or User doens't exist.", "danger")
             curr.close()
             conn.close()
-            return redirect("/login")
+            return render_template('login.html', email=username_email, password=password), 403  
 
 
 
