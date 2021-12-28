@@ -16,7 +16,9 @@ dec_key = Fernet.generate_key().decode()
 env_string = f'''secret_key = "{secret_key}"
 dec_key = "{dec_key}"
 user_agent = ""
-agent_needed = "False"'''
+agent_needed = "False"
+auto_update = "True"
+'''
 with open(".env", "w") as f:
     f.write(env_string)
 with open("date.txt", "w") as f:

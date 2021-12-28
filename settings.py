@@ -9,3 +9,7 @@ if getenv("agent_needed") == "True":
    agent_needed = True
 else:
    agent_needed = False
+if getenv("auto_update") == "True":
+   auto_update = True
+else:
+   auto_update = False
