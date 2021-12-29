@@ -11,9 +11,9 @@ Licensing-API is an API to create, manage and check keys for your projects.<br><
 - Password Fernet Encryption
 - Automatic Key Counter 
 ## What's not covered?
-- Anti-Bruteforce-Defence
-- Sql-Injection (not-tested)
-- Api-Limit
+- Anti-Bruteforce-Defence / only signup working on that.
+- Sql-Injection / didnt find anything, try to inject and open an issue.
+- Api-Limit 
 # Explanation
 I'm just a junior backend dev, and wasn't able to cover these protections,
 because of missing Knowledge and this Project was made in 5 days, and I want to go on.
